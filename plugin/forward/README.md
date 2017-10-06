@@ -44,15 +44,21 @@ proxy FROM TO... {
 
 ## Metrics
 
-TODO
+If monitoring is enabled (via the *prometheus* directive) then the following metric are exported:
+
+* `coredns_forward_request_count_total{proto, to}` - qps per upstream.
+* `coredns_forward_socket_count_total{to}` - known sockets per upstream.
+
+Where `to` is one of the upstream servers (**TO** from the config), `proto` is the protocol used by
+the incoming query ("tcp" or "udp").
 
 ## Examples
 
 Proxy all requests within example.org. to a nameserver running on a different port:
 
 ~~~ corefile
-. {
-    forward example.org 127.0.0.1:9005
+example.org {
+    forward . 127.0.0.1:9005
 }
 ~~~
 
