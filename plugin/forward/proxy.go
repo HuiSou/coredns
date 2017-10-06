@@ -178,6 +178,13 @@ func (p *proxy) knownClient(id string) bool {
 	return ok
 }
 
+// Len returns the number of known connection for this proxy. This is mostly usef for monitoring.
+func (p *proxy) Len() int {
+	p.RLock()
+	return len(p.conns)
+	p.RUnlock()
+}
+
 // clientID returns a string that identifies this particular client's 3-tuple.
 func clientID(w dns.ResponseWriter) (id, proto string) {
 	if _, ok := w.RemoteAddr().(*net.UDPAddr); ok {
