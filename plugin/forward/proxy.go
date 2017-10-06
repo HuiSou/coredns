@@ -181,8 +181,9 @@ func (p *proxy) knownClient(id string) bool {
 // Len returns the number of known connection for this proxy. This is mostly usef for monitoring.
 func (p *proxy) Len() int {
 	p.RLock()
-	return len(p.conns)
+	l := len(p.conns)
 	p.RUnlock()
+	return l
 }
 
 // clientID returns a string that identifies this particular client's 3-tuple.
