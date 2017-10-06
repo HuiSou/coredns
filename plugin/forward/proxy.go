@@ -41,16 +41,17 @@ type conn struct {
 }
 
 type proxy struct {
-	host         *host
-	connTimeout  time.Duration
-	conns        map[string]conn
+	host        *host
+	connTimeout time.Duration
+	conns       map[string]conn
+	sync.RWMutex
 	closed       bool
 	clientChan   chan request.Request
 	upstreamChan chan request.Request
-	hcInterval   time.Duration
-	forceTCP     bool
 
-	sync.RWMutex
+	// copied from Forward.
+	hcInterval time.Duration
+	forceTCP   bool
 }
 
 func newProxy(addr string) *proxy {
@@ -77,6 +78,8 @@ func (p *proxy) setUsed(clientID string) {
 	p.Unlock()
 }
 
+// clientRead reads from upstream and send it to upstreamChan for writing it
+// back to the original client.
 func (p *proxy) clientRead(upstreamConn *dns.Conn, w dns.ResponseWriter) {
 	clientID, _ := clientID(w)
 	for {
@@ -114,6 +117,7 @@ func (p *proxy) clientPackets() {
 			}
 			c, err := dns.DialTimeout(proto, p.host.addr, dialTimeout)
 			if err != nil {
+				// try another nameserver?
 				continue
 			}
 
